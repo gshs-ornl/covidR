@@ -1,0 +1,39 @@
+Package: covidR
+Type: Package
+Title: COVID-19 Scraping and Visualization
+Version: 0.1.0
+Author: Joshua N. Grant <grantjn@ornl.gov>
+Maintainer: Joshua N. Grant <grantjn@ornl.gov>
+Description: Contains scripts to collect data from State Department health sites
+    or other reliable sources, import them into a database, and visualize a 
+    timeseries of the data via a shiny interface.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Requires:
+  data.table,
+  magrittr
+Imports:
+  RPostgres,
+  leaflet,
+  tidyverse,
+  rvest,
+  sp,
+  maptools,
+  stringr,
+  jsonlite,
+  rebus,
+  lubridate,
+  shiny,
+  httr,
+  RSelenium,
+  magick,
+  png,
+  snakecase,
+  V8
+Suggests:
+  roxygen2,
+  devtools,
+  usethis
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1

@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+data-raw/
+*.pdf
+*.png
+/*.tar.gz
+vignettes/*.html
+vignettes/*.pdf
+.httr-oauth
+*.utf8.md
+*.knit.md
+*-Ex.R
+*.csv
