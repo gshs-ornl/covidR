@@ -278,8 +278,27 @@ extract_county_number_to_df <- function(x) {
 #' @export
 get_scraper_functions <- function() {
   states <- state.name
-  states <- append(states, c('Puerto Rico', 'DC'))
-  paste0('scraper_', snakecase::to_snake_case(states))
+  states <- append(states, c('Puerto Rico', 'DC', 'hattiesburg'))
+  paste0('scrape_', snakecase::to_snake_case(states), '()')
+}
+
+#' @title
+#' @description
+#' @return
+#' @export
+wrap_scraper <- function(fxn) {
+  message(sprintf('Running scraper %s', fxn))
+  tryCatch(
+    eval(parse(text = fxn)),
+    error = function(e) {
+      warning(sprintf('An error %s occurred', e))
+      return(NULL)
+    },
+    warning = function(w) {
+      warning(sprintf('Warning occurred, returning anyway'))
+      return(eval(parse(text = fxn)))
+    }
+  )
 }
 
 #' @title
@@ -289,15 +308,15 @@ get_scraper_functions <- function() {
 run_all_scripts <- function() {
   fxns <- get_scraper_functions()
   dts <- list()
-  for (fxn in fxns) {
-    dt <- tryCatch(
-      {
-        do.call(fxn)
-      },
-    error = function(cond) {
-      data.table::data.table()
-    })
-    dts <- append(dts, dt)
+  for (i in 1:length(fxns)) {
+    if (grepl('maine', fxns[i], fixed = TRUE)) {
+      warning('Maine script needs revisitng')
+      dt <- NULL
+    }
+    dt <- wrap_scraper(fxns[i])
+    if (!is.null(dt)) {
+      dts <- append(dts, dt)
+    }
   }
   data.table::rbindlist(dts, fill = TRUE)
 }

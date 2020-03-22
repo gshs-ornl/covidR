@@ -42,7 +42,7 @@ scrape_alaska <- function() {
   # page <- xml2::read_html(trimws(urls[1]))
   # access_time <- Sys.time()
   # table <- rvest::html_table(page, header = FALSE, fill = TRUE)
-  warning('Alaska requires further development with Selenium')
+  print('Alaska requires further development with Selenium')
 }
 
 #' @title        Scrape the Arizona URLs
@@ -57,7 +57,7 @@ scrape_arizona <- function() {
   parse_url <- covidR::urls[state == state_name][['url']]
   page <- xml2::read_html(trimws(parse_url))
   access_time <- Sys.time()
-  warning('Arizona requires further development with Selenium')
+  print('Arizona requires further development with Selenium')
 }
 
 #' @title        Scrape the Arizona URLs
@@ -71,7 +71,7 @@ scrape_arkansas <- function() {
   base_url <- 'https://www.healthy.arkansas.gov/images/uploads'
   pic_url <- paste0(base_url, 'COVID-19_Case_Map_3.16.20.jpg')
 
-  warning('Arkansas requires image processing')
+  print('Arkansas requires image processing')
 }
 
 #' @title      scrape la times from california
@@ -143,12 +143,12 @@ scrape_colorado <- function() {
 scrape_connecticut <- function(driver = NULL) {
   state <- NULL
   state_name <- 'Connecticut'
-  url <- 'https://portal.ct.gov/coronavirus'
-  page <- get_page(url)
-  page_raw <- rvest::html_table(page)
-  tbl <- rvest::html_table(page)[[1]]
+  # url <- 'https://portal.ct.gov/coronavirus'
+  # page <- get_page(url)
+  # page_raw <- rvest::html_table(page)
+  # tbl <- rvest::html_table(page)[[1]]
 
-  warning('Must use selenium')
+  print('Must use selenium')
 }
 
 #' @title      scrape delaware
@@ -160,7 +160,7 @@ scrape_delaware <- function() {
   state <- NULL
   state_name <- 'Delaware'
   parse_url <- covidR::urls[state == state_name][['url']]
-  warning(paste(state_name, 'requires Selenium'))
+  print(paste(state_name, 'requires Selenium'))
 }
 
 #' @title      scrape DC
@@ -209,6 +209,7 @@ scrape_florida <- function() {
                 '&where=Counts%20IS%20NOT%20NULL&returnGeometry=false&',
                 'outFields=*&orderByFields=Counts%20desc')
   dat <- jsonlite::fromJSON(parse_url)
+  page_raw <- as.character(dat)
   fdat <- dat$features$attributes
   # florida datestamp nonsensical, make our own
   update_date <- make_access_time()
@@ -252,7 +253,7 @@ scrape_hawaii <- function() {
   state <- NULL
   state_name <- 'Hawaii'
   timezone <- 'Pacific/Honolulu'
-  parse_url <- covidR::urls[state == 'hawaii'][['url']]
+  parse_url <- covidR::urls[state == state_name][['url']]
   page <- get_page(parse_url)
   page_raw <- rvest::html_text(page)
   table <- rvest::html_table(page)[[1]]
@@ -281,11 +282,12 @@ scrape_idaho <- function() {
   state <- county <- NULL
   state_name <- 'Idaho'
   timezone <- 'America/Denver'
-  parse_url <- covidR::urls[state == 'idaho',][['url']]
+  parse_url <- covidR::urls[state == state_name][['url']]
   page <- get_page(parse_url)
   page_raw <- rvest::html_text(page)
   table <- rvest::html_table(page)[[1]]
-  tested <- table[2,2] + table[3,2] + table[4,2]
+  tested <- as.integer(table[2,2]) + as.integer(table[3,2]) +
+    as.integer(table[4,2])
   num_cases <- table[5,2]
   update_date <- stringr::str_extract(
     page_raw,
@@ -320,7 +322,7 @@ scrape_illinois <- function() {
   state <- NULL
   state_name <- 'Illinois'
   url <- covidR::urls[state == state_name][['url']]
-  warning('should likely use Selenium to get county resolution')
+  print('should likely use Selenium to get county resolution')
 }
 
 #' @title      scrape DC
@@ -334,7 +336,7 @@ scrape_indiana <- function() {
   url <- covidR::urls[state == state_name][['url']]
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
-  warning('needs selenium')
+  print('needs selenium')
 }
 
 #' @title      scrape DC
@@ -343,7 +345,7 @@ scrape_indiana <- function() {
 #' @return      a data.table ready for use or import into database
 #' @export
 scrape_iowa <- function() {
-  warning('Iowa needs selenium')
+  print('Iowa needs selenium')
 }
 
 #' @title      scrape DC
@@ -358,7 +360,7 @@ scrape_kansas <- function() {
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
   county_tbl <- rvest::html_table(page, fill = TRUE)
-  warning('kansas needs selenium')
+  print('kansas needs selenium')
 }
 
 #' @title      scrape DC
@@ -367,7 +369,7 @@ scrape_kansas <- function() {
 #' @return      a data.table ready for use or import into database
 #' @export
 scrape_kentucky <- function() {
-  warning('kentucky needs selenium')
+  print('kentucky needs selenium')
 }
 
 #' @title      scrape DC
@@ -432,7 +434,7 @@ scrape_maine <- function() {
 #' @return      a data.table ready for use or import into database
 #' @export
 scrape_maryland <- function() {
-  warning('requries selenium')
+  print('requries selenium')
 }
 
 #' @title      scrape DC
@@ -443,7 +445,7 @@ scrape_maryland <- function() {
 scrape_massachusetts <- function() {
   state <- NULL
   state_name <- 'Massachusetts'
-  warning('requires selenium')
+  print('requires selenium')
 }
 
 #' @title      scrape DC
@@ -462,19 +464,25 @@ scrape_michigan <- function() {
   county_cases <- tables[[1]]
   names(county_cases) <- county_cases[1,]
   county_cases <- county_cases[-1,]
-  state_data <- tables[[4]]
   update_date <- paste0(format(Sys.Date(),
                                format = '%Y-%m-%d'), ' 2:00 PM')
   update_date <- lubridate::as_datetime(update_date,
                                         format = '%Y-%m-%d %I:%M %p',
                                         tz = timezone)
-  d1 <- make_dat(state = state_name, url = url, page = page_raw,
-                 county = county_cases$County, cases = county_cases$Cawses,
-                 update_date = update_date)
-  d2 <- make_dat(state = state_name, url = url, page = page_raw,
-                 hospitalized = state_data$Hospitalized,
-                 cases = state_data$Number)
-  data.table::rbindlist(list(d1, d2), fill = TRUE)
+  if (length(tables) > 3) {
+    state_data <- tables[[4]]
+    d1 <- make_dat(state = state_name, url = url, page = page_raw,
+                   county = county_cases$county, cases = county_cases$cawses,
+                   update_date = update_date)
+    d2 <- make_dat(state = state_name, url = url, page = page_raw,
+                   hospitalized = state_data$Hospitalized,
+                   cases = state_data$Number)
+    data.table::rbindlist(list(d1, d2), fill = TRUE)
+
+  }
+  make_dat(state = state_name, url = url, page = page_raw,
+           county = county_cases$county, cases = county_cases$cawses,
+           update_date = update_date)
 }
 
 #' @title      scrape DC
@@ -493,7 +501,7 @@ scrape_minnesota <- function() {
   update_date <- lubridate::as_datetime(update_date,
                                         format = '%B %d, %Y',
                                         tz = timezone)
-  warning('needs selenium for county results')
+  print('needs selenium for county results')
   state_cases <- as.integer(gsub(',', '',
                                  stringr::str_extract(page_raw,
                                                       '(?<=Positive: )\\d{1,}'))
@@ -515,7 +523,38 @@ scrape_mississippi <- function() {
   page <- get_page('https://msdh.ms.gov/msdhsite/_static/14,0,420.html')
   page_raw <- rvest::html_text(page)
   cases <- rvest::html_node(page, xpath = '//*[@id="pvExplorationHost"]/div/div/exploration/div/explore-canvas-modern/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container-modern[2]/transform/div/div[3]/visual-modern/div/svg/g[1]/text/tspan')
-  warning('needs selenium')
+  print('needs selenium')
+}
+
+
+#' @title      scrape DC
+#' @description scrapes urls for DC
+#' @importFrom data.table :=
+#' @return      a data.table ready for use or import into database
+#' @export
+scrape_missouri <- function() {
+  state_name <- 'Missouri'
+  timezone <- 'America/Chicago'
+  st_url <- covidR::urls[state == state_name][['url']]
+  st_page <- get_page(st_url)
+  st_page_raw <- rvest::html_text(st_page)
+  st_tbls <- rvest::html_table(st_page)[[1]]
+  ud <- rvest::html_text(rvest::html_node(st_page, xpath = '//*[@id="main-content"]/p[2]'))
+  ud <- convert_am_pm(strsplit(ud, '\r\n\\s{1,}')[[1]][1])
+  updated <- lubridate::as_datetime(ud, format = 'As of %I:%M %p CT, %B %d',
+                                    tz = timezone)
+  url <- 'https://health.mo.gov/living/healthcondiseases/communicable/novel-coronavirus/results.php'
+  page <- get_page(url)
+  county_page_raw <- rvest::html_text(page)
+  tbls <- rvest::html_table(page)[[1]]
+  d1 <- make_dat(state = state_name, url = st_url, page = st_page_raw,
+                 cases = st_tbls[2,2], update_date = updated,
+                 deaths = stringr::str_extract(st_tbls[1,1],
+                                               '\\d{1,}'))
+  d2 <- make_dat(state = state_name, url = url, page = county_page_raw,
+                 county = tbls[,1], cases = tbls[,2],
+                 update_date = updated)
+  data.table::rbindlist(list(d1, d2), fill = TRUE)
 }
 
 #' @title      scrape DC
@@ -588,14 +627,15 @@ scrape_nevada <- function() {
   url <- 'http://dpbh.nv.gov/coronavirus/'
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
-  tbl <- rvest::html_table(page)[[1]]
-  update_date <- lubridate::as_datetime(
-    gsub('Last updated ', '', tbl[2,1]), format = '%m/%d/%Y, %I:%M %p',
-    tz = timezone)
-  make_dat(state = state_name, url = url, page = page_raw,
-           update_date = update_date, cases = tbl[3, 2],
-           presumptive_positive = tbl[4, 2], negative_tests = tbl[5, 2],
-           monitored = tbl[9,2])
+  # tbl <- rvest::html_table(page)[[1]]
+  # update_date <- lubridate::as_datetime(
+  #   gsub('last updated ', '', tbl[2,1]), format = '%m/%d/%y, %i:%m %p',
+  #   tz = timezone)
+  # make_dat(state = state_name, url = url, page = page_raw,
+  #          update_date = update_date, cases = tbl[3, 2],
+  #          presumptive_positive = tbl[4, 2], negative_tests = tbl[5, 2],
+  #          monitored = tbl[9,2])
+  print('New Nevada resource needed')
 }
 
 #' @title      scrape DC
@@ -604,7 +644,7 @@ scrape_nevada <- function() {
 #' @return      a data.table ready for use or import into database
 #' @export
 scrape_new_hampshire <- function() {
-  warning('County data is in a picture')
+  print('County data is in a picture')
   state <- NULL
   state_name <- 'New Hampshire'
   timezone <- 'America/New_York'
@@ -642,7 +682,7 @@ scrape_new_jersey <- function() {
   tbl[, county := snakecase::to_title_case(COUNTY)]
   url2 <- 'https://maps.arcgis.com/sharing/rest/content/items/84737ef7f760486293b6afa536f028e0?f=json'
   page <- jsonlite::fromJSON(url2)
-  warning('date_updated will need to be retrieved via selenium')
+  print('date_updated will need to be retrieved via selenium')
   make_dat(state = state_name, url = url, page = page_raw,
            county = tbl[['county']], cases = tbl[['Positives']],
            negative_tests = tbl[['Negatives']])
@@ -653,15 +693,49 @@ scrape_new_jersey <- function() {
 #' @importFrom data.table :=
 #' @return      a data.table ready for use or import into database
 #' @export
-script_new_mexico <- function() {
+scrape_new_mexico <- function() {
   state <- NULL
   state_name <- 'New Mexico'
   timezone <- 'America/Denver'
   url <- 'https://nmhealth.org/news/alert/2020/3/?view=856'
-  warning('url contains a date element, may need to evaluate after march')
+  print('url contains a date element, may need to evaluate after march')
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
+  st_total <- stringr::str_extract(rvest::html_text(rvest::html_node(
+    page, xpath = '//*[@id="content"]/p[3]')),
+    '(?<=total of )\\d{1,}')
+  ud <- strsplit(rvest::html_text(rvest::html_node(
+    page, xpath = '//*[@id="content"]/div[2]/em')), ' - ', fixed = TRUE)[[1]][1]
+  ud <- lubridate::as_datetime(paste(ud, '12:00'), format = '%B %d, %Y %H:%M',
+                               tz = timezone)
+  cc <- rvest::html_text(rvest::html_node(page,
+                                          xpath = '//*[@id="content"]/ul[2]'))
+  cc <- strsplit(cc, '\r\n', fixed = TRUE)[[1]]
+  counties <- c()
+  cases <- c()
+  for (c in cc) {
+    cs <- strsplit(c, ': ', fixed = TRUE)
+    counties <- append(counties, gsub(' County', '', cs[1]))
+    cases <- append(cases, cs[2])
+  }
+  d1 <- make_dat(state = state_name, url = url, page = page_raw,
+                 cases = st_total, update_date = ud)
+  d2 <- make_dat(state = state_name, url = url, page = page_raw,
+                 county = counties, cases = cases, update_date = ud)
+  data.table::rbindlist(list(d1, d2), fill = TRUE)
 
+}
+
+
+#' @title      scrape DC
+#' @description scrapes urls for DC
+#' @importFrom data.table :=
+#' @return      a data.table ready for use or import into database
+#' @export
+scrape_new_york <- function() {
+  state_name <- 'New York'
+  message('No URL Found for New York')
+  return(NULL)
 }
 
 #' @title      scrape DC
@@ -715,7 +789,7 @@ scrape_north_carolina <- function() {
   state_name <- 'North Carolina'
   url <- ' https://www.ncdhhs.gov/covid-19-case-count-nc'
   timezone <- 'America/New_York'
-  warning('County data will need selenium')
+  print('County data will need selenium')
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
   tbl <- rvest::html_table(page)[[1]]
@@ -730,7 +804,7 @@ scrape_north_carolina <- function() {
                                         format = '%I:%M%p, %B %d, %Y.',
                                         tz = timezone)
   make_dat(state = state_name, cases = cases, deaths = deaths, url = url,
-           page = page_raw, deaths = deaths, update_date = update_date)
+           page = page_raw, update_date = update_date)
 
 }
 
@@ -741,7 +815,7 @@ scrape_north_carolina <- function() {
 #' @export
 scrape_north_dakota <- function() {
   state_name <- 'North Dakota'
-  warning('ND has data in images, will need selenium and OCR to scrape')
+  print('ND has data in images, will need selenium and OCR to scrape')
 }
 
 #' @title      scrape DC
@@ -884,7 +958,7 @@ scrape_pennsylvania <- function() {
     rvest::html_node(
       page,
       xpath = '//*[@id="ctl00_PlaceHolderMain_PageContent__ControlWrapper_RichHtmlField"]/h4/span'))
-  warning('Pennsylvania needs Selenium to parse county data')
+  print('Pennsylvania needs Selenium to parse county data')
   cases <- stringr::str_extract(tbl, '\\d{1,}')
   update_date <- rvest::html_text(rvest::html_node(
     page, xpath = '//*[@id="WebPartWPQ6"]/div[1]/h3[2]'
@@ -960,7 +1034,7 @@ scrape_south_carolina <- function() {
   update_date <- convert_am_pm(gsub('\\s{1,}', '', update_date))
   update_date <- lubridate::as_datetime(update_date,
                                         format = '%A,%B%d,%I:%M%p')
-  warning('South Carolina needs selenium to get county cases')
+  print('South Carolina needs selenium to get county cases')
   tbl <- rvest::html_table(page)[[1]]
   make_dat(state = state_name, url = url, page = raw_page,
            update_date = update_date, negative_tests = tbl[1,2],
@@ -1016,7 +1090,7 @@ scrape_tennessee <- function() {
                                 cases = tbls[[2]][, 2])
   out[, county := gsub(' County', '', county, fixed = TRUE)][-nrow(out),]
   d2 <- make_dat(state = state_name, url = url, page = page_raw,
-                 county = out[['county']], cases == out[['cases']])
+                 county = out[['county']], cases = out[['cases']])
   data.table::rbindlist(list(d1, d2), fill = TRUE)
 }
 
@@ -1056,7 +1130,7 @@ scrape_utah <- function() {
   page <- get_page(url)
   page_raw <- rvest::html_text(page)
   tbls <- rvest::html_table(page, fill = TRUE)
-  warning('No Data available without Selenium for Utah')
+  print('No Data available without Selenium for Utah')
 
 }
 #' @title      scrape DC
@@ -1082,9 +1156,9 @@ scrape_vermont <- function() {
 #' @importFrom data.table :=
 #' @return      a data.table ready for use or import into database
 #' @export
-scrape_virgina <- function() {
+scrape_virginia <- function() {
   state_name <- 'Virgina'
-  warning('Virginia scraping requires selenium')
+  print('Virginia scraping requires selenium')
 }
 #' @title      scrape DC
 #' @description scrapes urls for DC
@@ -1100,14 +1174,14 @@ scrape_washington <- function() {
     page, xpath = '//*[@id="dnn_ctr33855_HtmlModule_lblContent"]/p[6]')
   page_raw <- rvest::html_text(page)
   tbls <- rvest::html_table(page, fill = TRUE)
-  warning('Washington requires interaction with selenium')
+  print('Washington requires interaction with selenium')
 }
 #' @title      scrape DC
 #' @description scrapes urls for DC
 #' @importFrom data.table :=
 #' @return      a data.table ready for use or import into database
 #' @export
-scrape_west_virgina <- function() {
+scrape_west_virginia <- function() {
   state_name <- 'West Virgina'
   timezone <- 'America/New_York'
   url <- covidR::urls[state == state_name][['url']]
