@@ -30,7 +30,8 @@ Imports:
   magick,
   png,
   snakecase,
-  V8
+  V8,
+  DBI
 Suggests:
   roxygen2,
   devtools,
