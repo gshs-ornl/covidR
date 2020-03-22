@@ -38,3 +38,22 @@ retrieve_timzone_lut <- function() {
   tzdt <- unique(merge(tzdt, tzd_country, by = 'country_code'))
   return(tzlut)
 }
+
+#' @title       retrieve the timzone lookup table from wikipedia
+#' @description this function is used to create the dataset to lookup
+#' @return      a data.table ready for insertion into a database or other use
+#' @export
+convert_month_language <- function(x, lang = 'spanish') {
+  english = c('january', 'february', 'march', 'april', 'may', 'june', 'july',
+              'august', 'september', 'october', 'november', 'december')
+  spanish = c('enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+              'julio', 'agosto', 'septiembre', 'octubre', 'noviembre',
+              'deciembre')
+  if (tolower(lang) == 'spanish') {
+    spanish_regex_match <- paste0(spanish, collapse = '|')
+    month <- stringr::str_extract(x, spanish_regex_match)
+    index <- which(spanish == month)
+    english_month <- english[index]
+    return(gsub(month, english_month, x))
+  }
+}
