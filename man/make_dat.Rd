@@ -18,6 +18,10 @@ make_dat(country = "US", state = NA_character_, url = NA_character_,
   active = NA_integer_, inconclusive = NA_integer_,
   quarantined = NA_integer_)
 }
+\value{
+\preformatted{ returns a data.table ready for export or other usage
+}
+}
 \description{
 this provides the standard data format for import into the
 covid database

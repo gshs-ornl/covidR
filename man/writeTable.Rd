@@ -2,12 +2,11 @@
 % Please edit documentation in R/database.R
 \name{writeTable}
 \alias{writeTable}
-\title{\preformatted{ wrapper function around RPostgres::dbWriteTable
+\title{\preformatted{  wrapper function around RPostgres::dbWriteTable
 }}
 \usage{
 writeTable(x, con, tbl, schema, ...)
 }
 \description{
-\preformatted{ wrapper function around RPostgres::dbWriteTable
-}
+provides an easy method for writing to a database
 }
