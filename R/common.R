@@ -39,9 +39,9 @@ retrieve_timezone <- function(ab = NULL, dst = NULL, country = 'US') {
   }
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       retrieve a number from text
+#' @description fetch a number from text
+#' @return      returns an integer
 #' @export
 fetch_number_in_text <- function(page_text, search_word = NULL) {
   comma_regex <- '(,*[\\d]+,*[\\d]*)+'
@@ -52,9 +52,9 @@ fetch_number_in_text <- function(page_text, search_word = NULL) {
                                                 comma_regex)))))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       provide access time in UTC
+#' @description provides the access time in UTC
+#' @return      a datetime in UTC
 #' @export
 make_access_time <- function() {
   dt <- Sys.time()
@@ -62,36 +62,36 @@ make_access_time <- function() {
   dt
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       convert a date to UTC
+#' @description converts a datetime object to UTC timezone
+#' @return      a datetime object in UTC
 #' @export
 make_datetime_utc <- function(x) {
   attr(x, 'tzone') <- 'UTC'
   x
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       sanitize an integer
+#' @description convert whatever to an integer
+#' @return      returns an integer
 #' @export
 sanitize_integer <- function(x) {
   x <- unlist(lapply(x, gsub, pattern = ',', replacement = '', fixed = TRUE))
   as.integer(unlist(x))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       sanitize a number
+#' @description given a possible list of numbers, create a numeric value
+#' @return      returns a numeric number
 #' @export
 sanitize_numeric <- function(x) {
   x <- unlist(lapply(x, gsub, pattern = ',', replacement = '', fixed = FALSE))
   as.numeric(unlist(x))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       sanitize a character
+#' @description unlist and then create to character
+#' @return      a character
 #' @export
 sanitize_char <- function(x) {
   as.character(unlist(x))
@@ -100,6 +100,7 @@ sanitize_char <- function(x) {
 #' @title       make the standardized data format
 #' @description this provides the standard data format for import into the
 #'              covid database
+#' @return      returns a data.table ready for export or other usage
 #' @import data.table
 #' @export
 make_dat <- function(country = 'US', state = NA_character_, url = NA_character_,
@@ -143,7 +144,7 @@ make_dat <- function(country = 'US', state = NA_character_, url = NA_character_,
                          monitored = sanitize_integer(monitored),
                          no_longer_monitored = sanitize_integer(
                            no_longer_monitored),
-                         pending_tests = sanitize_integer(pending_tests),
+                         pending = sanitize_integer(pending_tests),
                          active = sanitize_integer(active),
                          inconclusive = sanitize_integer(inconclusive),
                          quarantined = sanitize_integer(quarantined),
@@ -152,9 +153,9 @@ make_dat <- function(country = 'US', state = NA_character_, url = NA_character_,
   )
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       unlist coordinates to points
+#' @description unlist a list of coordinates to points
+#' @return      returns a data.table with lat/lon values
 #' @export
 unlist_coordinates <- function(x) {
   dat <- data.table::data.table()
@@ -166,12 +167,13 @@ unlist_coordinates <- function(x) {
   return(dat)
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       convert lat/lon to fips
+#' @description provided a points_df containg lat/lon columns to
+#' @return      returns the county_names found
 #' @export
 lat_lon_to_fips <- function(points_df) {
-  counties <- maps::map('county', fill = TRUE, col = 'transparent', plot = FALSE)
+  counties <- maps::map('county', fill = TRUE, col = 'transparent',
+                        plot = FALSE)
   IDs <- sapply(strsplit(counties$names, ':'), function(x) x[1])
   counties_sp <- maptools::map2SpatialPolygons(
     counties, IDs, sp::CRS("+proj=longlat + datum=WGS85"))
@@ -180,9 +182,9 @@ lat_lon_to_fips <- function(points_df) {
   county_names[indices]
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       convert date to POSIXct datetime
+#' @description given a date and format, convert
+#' @return      a vector of POSIXct dates
 #' @export
 convert_date <- function(date, format, tz = 'UTC') {
   if (length(date) == 1) {
@@ -199,9 +201,9 @@ convert_date <- function(date, format, tz = 'UTC') {
   }
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       extract a scounty number
+#' @description extract a county and number and return as a vector
+#' @return      a vector in the form of county/cases
 #' @export
 extract_county_number <- function(x) {
   county <- stringr::str_extract(x, '\\w{1,}')
@@ -209,48 +211,49 @@ extract_county_number <- function(x) {
   return(c(county, cases))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       convert a word to a number
+#' @description provided a num ber word convert it to a number
+#' @return      a list of the word and the output
 #' @export
-word2num <- function(word){
+convert_word_to_num <- function(word){
   wsplit <- strsplit(tolower(word)," ")[[1]]
-  one_digits <- list(zero=0, one=1, two=2, three=3, four=4, five=5,
-                     six=6, seven=7, eight=8, nine=9)
-  teens <- list(eleven=11, twelve=12, thirteen=13, fourteen=14, fifteen=15,
-                sixteen=16, seventeen=17, eighteen=18, nineteen=19)
-  ten_digits <- list(ten=10, twenty=20, thirty=30, forty=40, fifty=50,
-                     sixty=60, seventy=70, eighty=80, ninety=90)
-  doubles <- c(teens,ten_digits)
+  one_digits <- list(zero = 0, one = 1 , two = 2, three = 3, four = 4, five = 5,
+                     six = 6, seven = 7, eight = 8, nine = 9)
+  teens <- list(eleven = 11, twelve = 12, thirteen = 13, fourteen = 14,
+                fifteen = 15,  sixteen = 16, seventeen = 17, eighteen = 18,
+                nineteen = 19)
+  ten_digits <- list(ten = 10, twenty = 20, thirty = 30, forty = 40, fifty = 50,
+                     sixty = 60, seventy = 70, eighty = 80, ninety = 90)
+  doubles <- c(teens, ten_digits)
   out <- 0
   i <- 1
-  while(i <= length(wsplit)){
+  while (i <= length(wsplit)) {
     j <- 1
-    if(i==1 && wsplit[i]=="hundred")
+    if (i == 1 && wsplit[i] == "hundred")
       temp <- 100
-    else if(i==1 && wsplit[i]=="thousand")
+    else if (i == 1 && wsplit[i] == "thousand")
       temp <- 1000
-    else if(wsplit[i] %in% names(one_digits))
+    else if (wsplit[i] %in% names(one_digits))
       temp <- as.numeric(one_digits[wsplit[i]])
-    else if(wsplit[i] %in% names(teens))
+    else if (wsplit[i] %in% names(teens))
       temp <- as.numeric(teens[wsplit[i]])
-    else if(wsplit[i] %in% names(ten_digits))
+    else if (wsplit[i] %in% names(ten_digits))
       temp <- (as.numeric(ten_digits[wsplit[i]]))
-    if(i < length(wsplit) && wsplit[i+1]=="hundred"){
-      if(i>1 && wsplit[i-1] %in% c("hundred","thousand"))
+    if (i < length(wsplit) && wsplit[i + 1] == "hundred") {
+      if (i > 1 && wsplit[i - 1] %in% c("hundred", "thousand"))
         out <- out + 100*temp
       else
         out <- 100*(out + temp)
       j <- 2
     }
-    else if(i < length(wsplit) && wsplit[i+1]=="thousand"){
-      if(i>1 && wsplit[i-1] %in% c("hundred","thousand"))
+    else if (i < length(wsplit) && wsplit[i + 1] == "thousand") {
+      if (i > 1 && wsplit[i - 1] %in% c("hundred", "thousand"))
         out <- out + 1000*temp
       else
         out <- 1000*(out + temp)
       j <- 2
     }
-    else if(i < length(wsplit) && wsplit[i+1] %in% names(doubles)){
+    else if (i < length(wsplit) && wsplit[i + 1] %in% names(doubles)) {
       temp <- temp*100
       out <- out + temp
     }
@@ -262,9 +265,9 @@ word2num <- function(word){
   return(list(word,out))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       extract the county name and county number from string
+#' @description given a string that contains county name and number
+#' @return      a data.frame with county and cases field
 #' @export
 extract_county_number_to_df <- function(x) {
   county <- stringr::str_extract(x, '\\w{1,}')
@@ -272,9 +275,9 @@ extract_county_number_to_df <- function(x) {
   return(data.frame(county = county, cases = cases))
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       retrieve all the scraper functions
+#' @description creates all state fxns and then add additional scrapes
+#' @return      a character containg the function to call
 #' @export
 get_scraper_functions <- function() {
   states <- state.name
@@ -282,40 +285,91 @@ get_scraper_functions <- function() {
   paste0('scrape_', snakecase::to_snake_case(states), '()')
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       make file names
+#' @description makes file names based on
+#' @return       a list of file_names for csv data and html/json text
 #' @export
-wrap_scraper <- function(fxn) {
+make_file_names <- function(fxn) {
+  name <- gsub('()', '', gsub('scrape_', '', fxn, fixed = TRUE), fixed = TRUE)
+  if (Sys.getenv('OUTPUT_DIR') != '') {
+    out_dir <- Sys.getenv('OUTPUT_DIR')
+  } else {
+    out_dir <- getwd()
+  }
+  out_date <- format(Sys.time(), format = '%Y%m%d%H%M')
+  page_fn <- paste0(paste(out_dir, name, out_date, 'page', sep = '_'), '.txt')
+  file_fn <- paste0(paste(out_dir, name, out_date, sep = '_'), '.csv')
+  file_names <- c(file_fn, page_fn)
+  print(file_names)
+  print(str(file_names))
+  return(file_names)
+}
+
+#' @title       scraper wrapper for scraper functions
+#' @description wrap the scraper in a
+#' @return      if interactive returns the data.table otherwise returns NULL
+#' @export
+#' @importFrom data.table :=
+wrap_scraper <- function(fxn, interactive = FALSE) {
   message(sprintf('Running scraper %s', fxn))
-  tryCatch(
+  dt <- tryCatch(
     eval(parse(text = fxn)),
     error = function(e) {
       warning(sprintf('An error %s occurred', e))
-      return(NULL)
+      return(data.table::data.table())
     },
     warning = function(w) {
       warning(sprintf('Warning occurred, returning anyway'))
-      return(eval(parse(text = fxn)))
+      return(suppressWarnings(eval(parse(text = fxn))))
     }
   )
+  if ('data.table' %in% class(dt)) {
+    print(names(dt))
+    if ('page' %in% names(dt)) {
+      page <- as.character(unique(dt[['page']]))
+      out <- dt[, page := NULL]
+    } else if ('page_raw' %in% names(dt)) {
+      page <- as.character(unique(dt[['page_raw']]))
+      out <- dt[, page_raw := NULL]
+    } else if ('raw_page' %in% names(dt)) {
+      page <- as.character(unique(dt[['raw_page']]))
+      out <- dt[, raw_page := NULL]
+    } else {
+      out <- dt
+    }
+    file_name <- make_file_names(fxn)
+    data.table::fwrite(out, file = file_name[1])
+    fileConn <- file(file_name[2])
+    writeLines(page)
+    close(fileConn)
+  }
+  if (interactive) {
+    return(dt)
+  }
+  invisible(NULL)
 }
 
-#' @title
-#' @description
-#' @return
+#' @title       run all scripts
+#' @description runs all scripts from get_scraper_functions
+#' @return      a data.table containing all data
 #' @export
 run_all_scripts <- function() {
   fxns <- get_scraper_functions()
-  dts <- list()
+  dts <- c()
   for (i in 1:length(fxns)) {
     if (grepl('maine', fxns[i], fixed = TRUE)) {
       warning('Maine script needs revisitng')
       dt <- NULL
     }
-    dt <- wrap_scraper(fxns[i])
+    dt <- wrap_scraper(fxns[i], interactive = TRUE)
     if (!is.null(dt)) {
-      dts <- append(dts, dt)
+      dts <- c(dts, dt)
+    }
+  }
+  dts <- as.list(dts)
+  for (i in 1:length(dts)) {
+    if (!'data.table' %in% class(dts[[i]])) {
+      dts[[i]] <- NA
     }
   }
   data.table::rbindlist(dts, fill = TRUE)
