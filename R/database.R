@@ -86,8 +86,8 @@ getDbAsDt <- function(con, tbl, schema, dt = TRUE) {
   }
 } # 2}}} 1}}}
 # writeTable() {{{1 -----------------------------------------------------------
-#' @title      wrapper function around RPostgres::dbWriteTable
-#' @description
+#' @title       wrapper function around RPostgres::dbWriteTable
+#' @description provides an easy method for writing to a database
 #' @export
 writeTable <- function(x, con, tbl, schema, ...) {
   RPostgres::dbWriteTable(con,
